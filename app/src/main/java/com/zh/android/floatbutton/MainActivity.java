@@ -1,12 +1,18 @@
 package com.zh.android.floatbutton;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.zh.android.floatbutton.weiget.FloatButtonLayout;
 
+/**
+ * <b>Package:</b> com.zh.android.floatbutton <br>
+ * <b>Create Date:</b> 2019-12-24  15:03 <br>
+ * <b>@author:</b> zihe <br>
+ * <b>Description:</b>  <br>
+ */
 public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,8 +23,7 @@ public class MainActivity extends AppCompatActivity {
         floatButton.setCallback(new FloatButtonLayout.Callback() {
             @Override
             public void onClickFloatButton() {
-                Toast.makeText(MainActivity.this.getApplicationContext(),
-                        "跳转到活动详情", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(MainActivity.this, NewYearActivity.class));
             }
         });
     }
