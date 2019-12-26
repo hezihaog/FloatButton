@@ -117,26 +117,38 @@ public class FloatButtonLayout extends FrameLayout {
                 super.onViewReleased(releasedChild, xvel, yvel);
                 //松手回弹，判断如果松手位置，近左边还是右边，进行弹性滑动
                 int fullWidth = getMeasuredWidth();
-                int halfWidth = fullWidth / 2;
-                int currentLeft = releasedChild.getLeft();
+                final int halfWidth = fullWidth / 2;
+                final int currentLeft = releasedChild.getLeft();
                 final int currentTop = releasedChild.getTop();
                 //滚动到左边
-                Runnable scrollToLeft = new Runnable() {
+                final Runnable scrollToLeft = new Runnable() {
                     @Override
                     public void run() {
                         mViewDragHelper.settleCapturedViewAt(getPaddingStart(), currentTop);
                     }
                 };
                 //滚动到右边
-                Runnable scrollToRight = new Runnable() {
+                final Runnable scrollToRight = new Runnable() {
                     @Override
                     public void run() {
                         int endX = getMeasuredWidth() - getPaddingEnd() - releasedChild.getWidth();
                         mViewDragHelper.settleCapturedViewAt(endX, currentTop);
                     }
                 };
+                Runnable checkDirection = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (currentLeft < halfWidth) {
+                            //在屏幕一半的左边，回弹回左边
+                            scrollToLeft.run();
+                        } else {
+                            //在屏幕一半的右边，回弹回右边
+                            scrollToRight.run();
+                        }
+                    }
+                };
                 //最小移动距离
-                int minMoveDistance = fullWidth / 4;
+                int minMoveDistance = fullWidth / 3;
                 //计算移动距离
                 int distanceX = currentLeft - mDownX;
                 int distanceY = currentTop - mDownY;
@@ -145,7 +157,7 @@ public class FloatButtonLayout extends FrameLayout {
                 long intervalTime = upTime - mDownTime;
                 float touched = getDistanceBetween2Points(new PointF(mDownX, mDownY), new PointF(currentLeft, currentTop));
                 //处理点击事件，移动距离小于识别为移动的距离，并且时间小于400
-                if (touched <= mViewDragHelper.getTouchSlop() && intervalTime < 400) {
+                if (touched < mViewDragHelper.getTouchSlop() && intervalTime < 300) {
                     if (mCallback != null) {
                         mCallback.onClickFloatButton();
                     }
@@ -165,23 +177,11 @@ public class FloatButtonLayout extends FrameLayout {
                         }
                     } else {
                         //不是fling操作，判断松手位置在屏幕左边还是右边
-                        if (currentLeft < halfWidth) {
-                            //在屏幕一半的左边，回弹回左边
-                            scrollToLeft.run();
-                        } else {
-                            //在屏幕一半的右边，回弹回右边
-                            scrollToRight.run();
-                        }
+                        checkDirection.run();
                     }
                 } else {
                     //上下滑，主要是判断在屏幕左还是屏幕右，不需要判断fling
-                    if (currentLeft < halfWidth) {
-                        //在屏幕一半的左边，回弹回左边
-                        scrollToLeft.run();
-                    } else {
-                        //在屏幕一半的右边，回弹回右边
-                        scrollToRight.run();
-                    }
+                    checkDirection.run();
                 }
                 invalidate();
             }
