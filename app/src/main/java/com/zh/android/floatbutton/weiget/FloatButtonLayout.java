@@ -161,6 +161,8 @@ public class FloatButtonLayout extends FrameLayout {
                     if (mCallback != null) {
                         mCallback.onClickFloatButton();
                     }
+                    //因为判断为点击事件后，return就会让按钮不进行贴边回弹了，这里再添加处理，让可以贴边回弹
+                    checkDirection.run();
                     return;
                 }
                 //判断上下滑还是左右滑
